@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.SceneController">
+    <Button text="Switch to Scene 1" onAction="#switchToScene1"/>
+    <Button text="Switch to Scene 2" onAction="#switchToScene2"/>
+</VBox>
