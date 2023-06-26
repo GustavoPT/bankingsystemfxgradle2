@@ -1,11 +1,11 @@
-package dao;
+package repository;
 
 import models.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import util.HibernateUtil;
 
-public class UserDao {
+public class UserRepository {
 
 	public String saveUser(User user) {
 		Transaction transaction = null;

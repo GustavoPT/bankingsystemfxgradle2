@@ -1,6 +1,6 @@
-package dao;
+package repository;
 
-import models.Merchant;
+import models.Card;
 import models.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -9,21 +9,20 @@ import util.HibernateUtil;
 
 import java.util.List;
 
+public class CardsRepository {
 
-public class MerchantsDao {
-
-	public List<Merchant> getMerchants(String username) {
+	public List<Card> getCards(String username) {
 		Transaction transaction = null;
-		List<Merchant> merchantsList = null;
+		List<Card> cardsList = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			
 			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
 					.uniqueResult();
 			if(user != null) {
-				Query q = session.createQuery("select t from Merchant t");			
-				merchantsList = q.list();
-			};
+				Query q = session.createQuery("select a from Card a where a.user.id = :id").setParameter("id", user.getId());			
+				cardsList = q.list();
+			}
 			transaction.commit();			
 			
 		} catch (Exception e) {
@@ -32,26 +31,19 @@ public class MerchantsDao {
 			}
 			e.printStackTrace();
 		}
-		return merchantsList;
+		return cardsList;
 	}
 	
-	public String deleteMerchant(String username, int merchantId) {
-		String message = null;
+	public void deleteCard(String username, int cardId) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			
 			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
 					.uniqueResult();
-			if(user != null) {				
-				Merchant existingMerchant = (Merchant) session.createQuery("FROM Merchant U WHERE U.id = :id").setParameter("id", merchantId)
-						.uniqueResult();
-				if(existingMerchant.getProducts().size() > 0) {
-					message = "Merchant cannot be deleted. Active products available.";
-				} else {
-				Query q = session.createQuery("DELETE from Merchant where id = :id").setParameter("id", merchantId);
+			if(user != null) {
+				Query q = session.createQuery("DELETE from Card where id = :id").setParameter("id", cardId);
 				q.executeUpdate();
-				}
 			}
 			transaction.commit();			
 		} catch (Exception e) {
@@ -59,19 +51,68 @@ public class MerchantsDao {
 				transaction.rollback();
 			}
 			e.printStackTrace();
-			return "Error occurred...";
 		}
-		return message;
 	}
 	
-	public Merchant getMerchant(Integer id) {
+	public String saveCard(Card card, String username) {
+		Transaction transaction = null;
+		String errorMsg = null;
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+			transaction = session.beginTransaction();
+			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
+					.uniqueResult();
+			Card existingCard = (Card) session.createQuery("FROM Card U WHERE U.id = :id").setParameter("id", card.getId())
+					.uniqueResult();
+			if(existingCard == null) {
+				card.setUser(user);
+				session.save(card);
+			} else {
+				errorMsg = "Card aleady exists...";
+			}
+			transaction.commit();			
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			e.printStackTrace();
+			errorMsg = "Error occurred...";
+		}
+		return errorMsg;
+	}
+	
+	public String saveCard(Integer id, String cardNumber, String name, String cvv, String month, String year, String image) {
+		Transaction transaction = null;
+		String errorMsg = null;
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+			transaction = session.beginTransaction();
+			int count = session.createQuery("Update Card U set U.number= :number, U.name= :name, U.code= :code, U.month= :month, U.year= :year, U.image= :image WHERE U.id = :id")
+					.setParameter("id", id).setParameter("number", cardNumber).setParameter("name", name).setParameter("code", cvv).setParameter("month", month)
+					.setParameter("year", year).setParameter("image", image)
+					.executeUpdate();
+			if(count != 0) {
+				
+			} else {
+				errorMsg = "Card could not be updated...";
+			}
+			transaction.commit();			
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			e.printStackTrace();
+			errorMsg = "Error occurred...";
+		}
+		return errorMsg;
+	}
+	
+	public Card getCard(Integer id) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			Merchant existingMerchant = (Merchant) session.createQuery("FROM Merchant U WHERE U.id = :id").setParameter("id", id)
+			Card existingCard = (Card) session.createQuery("FROM Card U WHERE U.id = :id").setParameter("id", id)
 					.uniqueResult();
-			if(existingMerchant != null) {
-				return existingMerchant;
+			if(existingCard != null) {
+				return existingCard;
 			}
 			transaction.commit();			
 		} catch (Exception e) {
@@ -83,53 +124,4 @@ public class MerchantsDao {
 		}
 		return null;
 	}
-	
-	public String saveMerchant(Integer id, String name) {
-		Transaction transaction = null;
-		String errorMsg = null;
-		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-			transaction = session.beginTransaction();
-			int count = session.createQuery("Update Merchant U set U.name= :name WHERE U.id = :id").setParameter("id", id).setParameter("name", name)
-					.executeUpdate();
-			if(count != 0) {
-				
-			} else {
-				errorMsg = "Merchant could not be updated...";
-			}
-			transaction.commit();			
-		} catch (Exception e) {
-			if (transaction != null) {
-				transaction.rollback();
-			}
-			e.printStackTrace();
-			errorMsg = "Error occurred...";
-		}
-		return errorMsg;
-	}
-	
-	public String saveMerchant(Merchant merchant, String username) {
-		Transaction transaction = null;
-		String errorMsg = null;
-		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-			transaction = session.beginTransaction();
-			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
-					.uniqueResult();
-			Merchant existingMerchant = (Merchant) session.createQuery("FROM Merchant U WHERE U.id = :id").setParameter("id", merchant.getId())
-					.uniqueResult();
-			if(existingMerchant == null) {
-				session.save(merchant);
-			} else {
-				errorMsg = "Merchant aleady exists...";
-			}
-			transaction.commit();			
-		} catch (Exception e) {
-			if (transaction != null) {
-				transaction.rollback();
-			}
-			e.printStackTrace();
-			errorMsg = "Error occurred...";
-		}
-		return errorMsg;
-	}
-
 }

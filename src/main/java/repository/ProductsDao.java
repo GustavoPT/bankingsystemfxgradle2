@@ -1,4 +1,4 @@
-package dao;
+package repository;
 
 import models.Merchant;
 import models.Product;
@@ -11,7 +11,7 @@ import util.HibernateUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductsDao {
+public class ProductsRepository {
 
 	public List<Product> getProducts(String username) {
 		Transaction transaction = null;

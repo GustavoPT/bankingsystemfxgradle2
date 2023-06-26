@@ -1,6 +1,6 @@
-package dao;
+package repository;
 
-import models.Card;
+import models.Account;
 import models.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -9,19 +9,20 @@ import util.HibernateUtil;
 
 import java.util.List;
 
-public class CardsDao {
 
-	public List<Card> getCards(String username) {
+public class AccountsRepository {
+
+	public List<Account> getAccounts(String username) {
 		Transaction transaction = null;
-		List<Card> cardsList = null;
+		List<Account> accountsList = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			
 			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
 					.uniqueResult();
 			if(user != null) {
-				Query q = session.createQuery("select a from Card a where a.user.id = :id").setParameter("id", user.getId());			
-				cardsList = q.list();
+				Query q = session.createQuery("select a from Account a where a.user.id = :id").setParameter("id", user.getId());			
+				accountsList = q.list();
 			}
 			transaction.commit();			
 			
@@ -31,10 +32,10 @@ public class CardsDao {
 			}
 			e.printStackTrace();
 		}
-		return cardsList;
+		return accountsList;
 	}
 	
-	public void deleteCard(String username, int cardId) {
+	public void deleteAccount(String username, int accountId) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
@@ -42,7 +43,7 @@ public class CardsDao {
 			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
 					.uniqueResult();
 			if(user != null) {
-				Query q = session.createQuery("DELETE from Card where id = :id").setParameter("id", cardId);
+				Query q = session.createQuery("DELETE from Account where id = :id").setParameter("id", accountId);
 				q.executeUpdate();
 			}
 			transaction.commit();			
@@ -54,20 +55,20 @@ public class CardsDao {
 		}
 	}
 	
-	public String saveCard(Card card, String username) {
+	public String saveAccount(Account account, String username) {
 		Transaction transaction = null;
 		String errorMsg = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			User user = (User) session.createQuery("FROM User U WHERE U.username = :username").setParameter("username", username)
 					.uniqueResult();
-			Card existingCard = (Card) session.createQuery("FROM Card U WHERE U.id = :id").setParameter("id", card.getId())
+			Account existingAcc = (Account) session.createQuery("FROM Account U WHERE U.id = :id").setParameter("id", account.getId())
 					.uniqueResult();
-			if(existingCard == null) {
-				card.setUser(user);
-				session.save(card);
+			if(existingAcc == null) {
+				account.setUser(user);
+				session.save(account);
 			} else {
-				errorMsg = "Card aleady exists...";
+				errorMsg = "Account aleady exists...";
 			}
 			transaction.commit();			
 		} catch (Exception e) {
@@ -80,19 +81,17 @@ public class CardsDao {
 		return errorMsg;
 	}
 	
-	public String saveCard(Integer id, String cardNumber, String name, String cvv, String month, String year, String image) {
+	public String saveAccount(Integer id, String accountType) {
 		Transaction transaction = null;
 		String errorMsg = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			int count = session.createQuery("Update Card U set U.number= :number, U.name= :name, U.code= :code, U.month= :month, U.year= :year, U.image= :image WHERE U.id = :id")
-					.setParameter("id", id).setParameter("number", cardNumber).setParameter("name", name).setParameter("code", cvv).setParameter("month", month)
-					.setParameter("year", year).setParameter("image", image)
+			int count = session.createQuery("Update Account U set U.type= :type WHERE U.id = :id").setParameter("id", id).setParameter("type", accountType)
 					.executeUpdate();
 			if(count != 0) {
 				
 			} else {
-				errorMsg = "Card could not be updated...";
+				errorMsg = "Account type could not be updated...";
 			}
 			transaction.commit();			
 		} catch (Exception e) {
@@ -105,14 +104,14 @@ public class CardsDao {
 		return errorMsg;
 	}
 	
-	public Card getCard(Integer id) {
+	public Account getAccount(Integer id) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			Card existingCard = (Card) session.createQuery("FROM Card U WHERE U.id = :id").setParameter("id", id)
+			Account existingAcc = (Account) session.createQuery("FROM Account U WHERE U.id = :id").setParameter("id", id)
 					.uniqueResult();
-			if(existingCard != null) {
-				return existingCard;
+			if(existingAcc != null) {
+				return existingAcc;
 			}
 			transaction.commit();			
 		} catch (Exception e) {
@@ -123,5 +122,28 @@ public class CardsDao {
 			return null;
 		}
 		return null;
+	}
+	
+	public String saveAccountBalance(Integer id, Double amount) {
+		Transaction transaction = null;
+		String errorMsg = null;
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+			transaction = session.beginTransaction();
+			int count = session.createQuery("Update Account U set U.balance= :balance WHERE U.id = :id").setParameter("id", id).setParameter("balance", amount)
+					.executeUpdate();
+			if(count != 0) {
+				
+			} else {
+				errorMsg = "Account balance could not be updated...";
+			}
+			transaction.commit();			
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			e.printStackTrace();
+			errorMsg = "Error occurred...";
+		}
+		return errorMsg;
 	}
 }

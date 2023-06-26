@@ -1,4 +1,4 @@
-package dao;
+package repository;
 
 import models.BankTransaction;
 import models.User;
@@ -9,7 +9,7 @@ import util.HibernateUtil;
 
 import java.util.List;
 
-public class BankTransactionDao {
+public class BankTransactionRepository {
 
 	public List<BankTransaction> getBankTransactions(String username) {
 		Transaction transaction = null;
@@ -59,7 +59,7 @@ public class BankTransactionDao {
 		return errorMsg;
 	}
 
-	// update and delete methods add them to thedao
+	// update and delete methods add them to therepository
 	public void updateTransaction(BankTransaction bankTransaction) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
