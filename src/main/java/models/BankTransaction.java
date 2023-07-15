@@ -10,7 +10,6 @@ public class BankTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bankTransaction_id")
     int id;
-
     double amount;
 
     String date;
