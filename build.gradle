@@ -11,15 +11,15 @@ repositories {
 
 dependencies {
     implementation 'com.jfoenix:jfoenix:9.0.10'
-    implementation 'org.slf4j:slf4j-api:1.7.32'  // SLF4J API dependency
-    implementation 'ch.qos.logback:logback-classic:1.2.5'  // Logback dependency
-    implementation ("com.sparkjava:spark-core:2.5")
-    implementation ("com.sparkjava:spark-template-thymeleaf:2.7.1")
-    implementation ("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("mysql:mysql-connector-java:8.0.13")
+    implementation 'com.mashape.unirest:unirest-java:1.4.9'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+
     implementation("org.hibernate:hibernate-core:5.3.7.Final")
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation'morg.junit.jupiter:junit-jupiter-api:5.8.1'
+
+    //testImplementation 'morg.junit.jupiter:junit-jupiter-api:5.8.1'
+    //testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 test {

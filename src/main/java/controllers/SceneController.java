@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import util.Constants;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class SceneController {
 //   	     URL url = getClass().
 		
 		
-   	    System.out.println("   =../"+Constants.LOGIN_FXML);
+   	    System.out.println("   =../"+ Constants.LOGIN_FXML);
    	     // get
    	    Class<?> cls = SceneController.class;
    	    String path = cls.getResource(cls.getSimpleName() + ".class").toString();
